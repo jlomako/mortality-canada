@@ -72,9 +72,11 @@ population$age <- population$age %>% tidyr::replace_na("all ages")
 # join data and population
 population$year <- as.character(population$year)
 data <- data %>% 
-  left_join(population, by = c("geo", "year", "sex", "age")) 
+  left_join(population, by = c("geo", "year", "sex", "age")) %>%
+  select(-year, -week)
+  
 
-# write file
+#data <- data.frame(data)
 write.csv(data, file = "data.csv", row.names = FALSE)
 
 
