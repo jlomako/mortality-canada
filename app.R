@@ -35,7 +35,7 @@ data$week <- format(data$date, "%U")
 data <- data %>% mutate(death_rate = deaths / pop * 1e4) %>%
   mutate(CommonDate = as.Date(paste0("2000-", format(date, "%j")), "%Y-%j"))
 
-levels(data$sex) <- c("Both", "Female", "Male")
+levels(data$sex) <- c("Both sexes", "Female", "Male")
 
 provinces <- data %>% distinct(geo)
 sex <- data %>% distinct(sex)
@@ -118,7 +118,7 @@ ui <- bootstrapPage(
                           ),
                       div(class="card-footer bg-white", 
                           tags$div(
-                        HTML('<p class="text-center fw-light fs-6 lh-sm text-muted">
+                        HTML('<p class="text-center small">
                               Data source: Statistics Canada. 
                               Table 13-10-0768-01  Provisional weekly death counts, by age group and sex <br>
                               DOI: https://doi.org/10.25318/1310076801-eng<br><br>
