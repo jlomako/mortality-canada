@@ -35,10 +35,13 @@ data$week <- format(data$date, "%U")
 data <- data %>% mutate(death_rate = deaths / pop * 1e4) %>%
   mutate(CommonDate = as.Date(paste0("2000-", format(date, "%j")), "%Y-%j"))
 
+levels(data$sex) <- c("Both", "Female", "Male")
+
 provinces <- data %>% distinct(geo)
 sex <- data %>% distinct(sex)
 age <- data %>% distinct(age)
 year <- data %>% distinct(year)
+
 
 #########################
 ## dashboard interface:
@@ -140,7 +143,7 @@ server <- function(input, output) {
                                              age == input$age))
     selected_province() %>% 
       ggplot(aes(x = CommonDate, y = death_rate, colour = year)) +
-      geom_line(size = 0.5, na.rm=T) +
+      geom_line(size = 0.71, na.rm=T) +
       scale_x_date(date_labels = "%b %d", date_breaks = "2 month") +
       # ylim(0,50) +
       labs(title = "Mortality rate per 100.000 inhabitants", 
@@ -149,7 +152,8 @@ server <- function(input, output) {
       theme_bw() +
       theme(axis.text.x = element_text(angle=90, hjust=0, vjust=0.5), 
             legend.position="top", plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5),
-            axis.ticks = element_blank(), axis.text = element_text(size = 9))
+            axis.ticks = element_blank(), axis.text = element_text(size = 9)) +
+      scale_colour_manual(values = c("2021"="deepskyblue3", "2020" ="darkgoldenrod1", "2019"="chocolate", "2018"="blue1", "2017"="black", "2016"="red", "2015"="deeppink4", "2014"="deeppink", "2013"="darkviolet", "2012"="darkturquoise", "2011"="coral", "2010"="darkgrey"))
   }, res = 96, height = "auto")
   
 }
