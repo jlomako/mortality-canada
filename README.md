@@ -14,5 +14,5 @@ In the app, you can switch between "Number of deaths" and
 "Deaths per 100.000". You can select the years you want to visualize, 
 the province or territory, and the sex and age group. 
 
-<br><br><br>
+### Preview:
 <img src="screenshots/Screenshot_20220921-150059.png" alt="screenshot" width=40%>
