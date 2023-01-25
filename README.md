@@ -1,6 +1,6 @@
 
-## <a href="https://jlomako.shinyapps.io/mortality-canada/">Mortality in Canada: Explore weekly deaths, by age group and sex</a>
-### <a href="https://jlomako.shinyapps.io/mortality-canada/">Launch app</a>
+## Mortality in Canada: Explore weekly deaths, by age group and sex
+### <a href="https://jlomako.shinyapps.io/mortality-canada/">Open app</a>
 
 This Shiny app visualizes weekly death data from Statistics Canada. 
 The app uses data that was merged from Table 13-10-0768-01: 
