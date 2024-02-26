@@ -4,23 +4,22 @@
 #
 ######################################################################
 
-# based on data from Statistics Canada, downloaded on 9-9-2022:
-
-# Table 13-10-0768-01 Weekly death counts, by age group and sex
+# based on data from Statistics Canada, downloaded on 2023-02-23
+# Table 13-10-0768-01 Provisional weekly death counts, by age group and sex
 # DOI: https://doi.org/10.25318/1310076801-eng
 # https://www150.statcan.gc.ca/n1/tbl/csv/13100768-eng.zip
 
 # population data incl age, sex, geo, year
 # Table: 17-10-0005-01 (formerly CANSIM 051-0001)
-# Table 17-10-0005-01  Population estimates on July 1st, by age and sex
+# Table 17-10-0005-01  Population estimates on July 1, by age and gender
 # DOI: https://doi.org/10.25318/1710000501-eng
-
 
 library(dplyr)
 library(stringr)
 library(ggplot2)
 library(shiny)
 
+# data <- vroom::vroom("data.csv", show_col_types = FALSE)
 # get data incl death counts and population from repository
 data <- vroom::vroom("https://github.com/jlomako/mortality-canada/raw/main/data/data.csv", show_col_types = FALSE)
 
@@ -36,7 +35,7 @@ data$year <- as.factor(data$year)
 data <- data %>% mutate(death_rate = deaths / pop * 1e4) %>%
   mutate(CommonDate = as.Date(paste0("2000-", format(date, "%j")), "%Y-%j")) 
 
-levels(data$sex) <- c("Both sexes", "Female", "Male")
+levels(data$sex) <- c("Both sexes", "Women", "Men")
 
 provinces <- data %>% distinct(geo)
 sex <- data %>% distinct(sex)
@@ -45,37 +44,6 @@ year <- data %>% distinct(year)
 plot_title <- ""
 
 
-
-#########################
-## dashboard interface:
-#########################
-# library(shinydashboard)
-# ui <- dashboardPage(
-#   dashboardHeader(),
-#   dashboardSidebar(
-#     div(selectInput(inputId = "province", label = "Select a province", choices = provinces, width = "100%")),
-#     div(selectInput(inputId = "sex", label = "Select group", choices = sex, width = "100%")),
-#     div(selectInput(inputId = "age", label = "Select age", choices = age, width = "100%")),
-#     #       div(pickerInput(inputId = "age", label = "Select age", choices = age, multiple = T, selected = "all ages")), # options = list(`actions-box` = TRUE)
-#     #       div(pickerInput(inputId = "year", label = "Select year", choices = year, multiple = T, selected = 2021)) # options = list(`actions-box` = TRUE)
-#     div(checkboxGroupInput(inputId = "year", label = "Select year",
-#                            choices = list("2021" = 2021, "2020" = 2020, "2019" = 2019, "2018" = 2018, 
-#                                           "2017" = 2017, "2016" = 2016, "2015" = 2015, "2014" = 2014,
-#                                           "2013" = 2013, "2012" = 2012, "2011" = 2011, "2010" = 2010),
-#                            selected = 2020:2021))
-#   ),
-#   
-#   dashboardBody(
-#     # plot
-#     plotOutput("plot")
-#     
-#   ),
-# )
-###########################
-
-#########################
-# bootstrap 5 interface
-#########################
 thematic::thematic_shiny(font = "auto")
 ui <- bootstrapPage(
   
@@ -105,35 +73,35 @@ ui <- bootstrapPage(
                                        choices = c("Deaths per 100.000" = "death_rate", "Number of Deaths" = "deaths"),
                                        selected = "death_rate", width="100%"))
                       # div(class="card-footer", h5("card footer right", class="small"))
-                      ),
+                  ),
                   # div(class="card-footer")
-                 ),
+              ),
           ),
           div(class="col-sm-9",
               div(class="card h-100",
-                      div(class="card-body px-0", div(plotOutput("plot", width = "100%"))),
-                      div(class="card-body bg-light border-top", 
-                          div(checkboxGroupInput(inputId = "year", 
-                                                 label = "Select a year",
-                                                 choices = list("2021" = 2021, "2020" = 2020, "2019" = 2019, "2018" = 2018, 
-                                                 "2017" = 2017, "2016" = 2016, "2015" = 2015, "2014" = 2014,
-                                                 "2013" = 2013, "2012" = 2012, "2011" = 2011, "2010" = 2010),
-                                                 selected = 2020:2021,
-                                                 inline=T))
-                          ),
-                      div(class="card-footer bg-white", 
-                          tags$div(
-                          HTML('<p class="text-center small">
+                  div(class="card-body px-0", div(plotOutput("plot", width = "100%"))),
+                  div(class="card-body bg-light border-top", 
+                      div(checkboxGroupInput(inputId = "year", 
+                                             label = "Select a year",
+                                             choices = list("2022" = 2022, "2021" = 2021, "2020" = 2020, "2019" = 2019, "2018" = 2018, 
+                                                            "2017" = 2017, "2016" = 2016, "2015" = 2015, "2014" = 2014,
+                                                            "2013" = 2013, "2012" = 2012, "2011" = 2011, "2010" = 2010),
+                                             selected = 2020:2022,
+                                             inline=T))
+                  ),
+                  div(class="card-footer bg-white", 
+                      tags$div(
+                        HTML('<p class="text-center small">
                               Data source: Statistics Canada.<br>
                               DOI: https://doi.org/10.25318/1310076801-eng<br>
                               DOI: https://doi.org/10.25318/1710000501-eng<br>
-                              © Copyright 2022, <a href="https://github.com/jlomako">jlomako</a>, Montr&#233;al</p>'),
-                          )
-                        ),
-                      ),    
-              ),
+                              © 2022-2024, <a href="https://github.com/jlomako">jlomako</a></p>'),
+                      )
+                  ),
+              ),    
           ),
-     ),
+      ),
+  ),
 )
 
 
@@ -143,7 +111,7 @@ server <- function(input, output) {
     selected_province <- reactive(data %>% 
                                     filter(year %in% input$year) %>% 
                                     filter(geo == input$province & sex == input$sex & age == input$age))
-                                    
+    
     ifelse(input$type == "deaths", plot_title <- "Weekly Number of deaths", plot_title <- "Weekly Mortality rate per 100.000 inhabitants")
     
     selected_province() %>% 
@@ -157,7 +125,7 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle=90, hjust=0, vjust=0.5), 
             legend.position="top", plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5),
             axis.ticks = element_blank(), axis.text = element_text(size = 9)) +
-      scale_colour_manual(values = c("2021"="deepskyblue3", "2020" ="darkgoldenrod1", "2019"="chocolate", "2018"="blue1", "2017"="black", "2016"="red", 
+      scale_colour_manual(values = c("2022"="darkgreen", "2021"="deepskyblue3", "2020" ="darkgoldenrod1", "2019"="chocolate", "2018"="blue1", "2017"="black", "2016"="red", 
                                      "2015"="deeppink4", "2014"="deeppink", "2013"="darkviolet", "2012"="darkturquoise", "2011"="coral", "2010"="darkgrey"),
                           breaks=(droplevels(selected_province()$year)))
   }, res = 96, height = "auto")
