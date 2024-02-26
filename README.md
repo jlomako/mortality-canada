@@ -1,12 +1,12 @@
 
 ## Mortality in Canada: Explore weekly deaths, by age group and sex
-### <a href="https://jlomako.shinyapps.io/mortality-canada/">Open app</a>
+### <a href="https://jlomako.shinyapps.io/mortality-canada/"> >> Open app</a>
 
 This Shiny app visualizes weekly death data from Statistics Canada. 
 
 In the app, you can switch between "Number of deaths" and 
 "Deaths per 100.000". You can select the years you want to visualize, 
-the province or territory, and the sex and age group. The app is interactive and looks good on mobile, too.
+the province or territory, and the sex and age group. The app is interactive and mobile friendly.
 It was written in R and is hosted on shinyapps.io.
 
 The app uses data from Statistics Canada Table 13-10-0768-01: 
