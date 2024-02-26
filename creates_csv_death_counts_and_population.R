@@ -4,16 +4,16 @@
 #
 ######################################################################
 
-# data downloaded from Statistics Canada on 9-9-2022:
+## updated files 
 
-# Table 13-10-0768-01 Weekly death counts, by age group and sex
-# DOI: https://doi.org/10.25318/1310076801-eng
-# https://www150.statcan.gc.ca/n1/tbl/csv/13100768-eng.zip
-
+# data source: 
+# Statistics Canada, downloaded on 2024-02-26:
+# Table DOI: https://doi.org/10.25318/1310076801-eng
+# 13-10-0768-01 Weekly death counts, by age group and sex
+# and
+# Table DOI: https://doi.org/10.25318/1710000501-eng
 # population data incl age, sex, geo, year
-# Table: 17-10-0005-01 (formerly CANSIM 051-0001)
-# Table 17-10-0005-01  Population estimates on July 1st, by age and sex
-# DOI: https://doi.org/10.25318/1710000501-eng
+
 
 
 library(dplyr)
@@ -53,11 +53,11 @@ population <- vroom::vroom("13100768-eng/17100005.csv", show_col_types = FALSE)
 population <- data.frame(population)
 
 population <- population %>% 
-  select(geo = GEO, year = REF_DATE, sex = Sex, ages = Age.group, pop = VALUE) %>%
+  select(geo = GEO, year = REF_DATE, sex = Gender, ages = Age.group, pop = VALUE) %>%
   filter(year >= 2010) %>%
-  filter(str_detect(ages,"(to|over|Median|Average)", T)) %>% # omit rows containing..
+  filter(str_detect(ages,"(to|over|Median|Average|older)", T)) %>% # omit rows containing averages etc
   mutate(ages = as.numeric(str_replace(ages, "( years| year)", ""))) %>% # delete string
-  # create age groups
+  # create age groups to match death counts
   mutate(age = ifelse(ages > 84, "85 years and over", 
                       ifelse(ages > 64, "65 to 84 years",
                              ifelse(ages > 44, "45 to 64 years",
@@ -66,17 +66,18 @@ population <- population %>%
   group_by(geo, year, sex, age) %>% 
   summarise(pop = sum(pop))
 
+# rename factors to match death counts
+population$sex <- str_replace_all(population$sex, c("Men\\+" = "Males", "Women\\+" = "Females", "Total - gender" = "Both sexes"))
+
 # replace NA with "all ages"
 population$age <- population$age %>% tidyr::replace_na("all ages")
 
 # join data and population
 population$year <- as.character(population$year)
 data <- data %>% 
-  left_join(population, by = c("geo", "year", "sex", "age")) %>%
-  select(-year, -week)
-  
+  left_join(population, by = c("geo", "year", "sex", "age")) 
 
-#data <- data.frame(data)
+# write file
 write.csv(data, file = "data.csv", row.names = FALSE)
 
 
